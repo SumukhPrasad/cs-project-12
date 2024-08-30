@@ -1,0 +1,3 @@
+pyqt5
+folium
+mysql-connector-python
