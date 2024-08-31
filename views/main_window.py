@@ -121,8 +121,9 @@ class JavaScriptInterface(QObject):
 
 
 class NoteItemWidget(QWidget):
-    def __init__(self, note_text, delete_callback, parent=None):
+    def __init__(self, note_id, note_text, delete_callback, parent=None):
         super().__init__(parent)
+        self.note_id = note_id
         self.delete_callback = delete_callback
 
         layout = QHBoxLayout()
@@ -137,7 +138,7 @@ class NoteItemWidget(QWidget):
     def handle_delete(self):
         if QMessageBox.question(self, 'Confirm Delete', 'Are you sure you want to delete this note?',
                                 QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.Yes:
-            self.delete_callback()
+            self.delete_callback(self.note_id)
 
 class MainWindow(QMainWindow):
     def __init__(self, controller, parent=None):
@@ -162,10 +163,11 @@ class MainWindow(QMainWindow):
 
     def load_notes(self):
         self.notes_list.clear()
-        for index, note in enumerate(self.controller.get_notes()):
+        for note in self.controller.get_notes():
             item_widget = NoteItemWidget(
+                note_id=note['id'],
                 note_text=f"{note['note']} (Lat: {note['latitude']}, Lon: {note['longitude']})",
-                delete_callback=lambda i=index: self.delete_note_at(i)
+                delete_callback=self.delete_note_at
             )
             item = QListWidgetItem()
             item.setSizeHint(item_widget.sizeHint())
@@ -179,6 +181,6 @@ class MainWindow(QMainWindow):
             self.controller.add_note(data)
             self.load_notes()
     
-    def delete_note_at(self, index):
-        self.controller.delete_note(index)
+    def delete_note_at(self, note_id):
+        self.controller.delete_note(note_id)
         self.load_notes()
