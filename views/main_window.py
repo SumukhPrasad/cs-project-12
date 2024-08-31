@@ -17,8 +17,8 @@ class NoteDialog(QDialog):
 
         # Create input fields
         self.note_edit = QLineEdit()
-        self.lat_edit = QLineEdit()
-        self.lon_edit = QLineEdit()
+        self.lat_edit = QLabel()
+        self.lon_edit = QLabel()
 
         # Layouts
         form_layout = QFormLayout()
@@ -38,8 +38,8 @@ class NoteDialog(QDialog):
         self.setLayout(layout)
 
         # Set default values for latitude and longitude
-        self.lat_edit.setText("51.5074")  # Default latitude (e.g., London)
-        self.lon_edit.setText("-0.1278")  # Default longitude (e.g., London)
+        self.lat_edit.setText("")  # Default latitude (e.g., London)
+        self.lon_edit.setText("")  # Default longitude (e.g., London)
 
         # Set up JavaScript interface
         self.web_channel = QWebChannel()
@@ -63,9 +63,6 @@ class NoteDialog(QDialog):
         map_center = [51.5074, -0.1278]  # Default center (e.g., London)
         folium_map = folium.Map(location=map_center, zoom_start=13)
 
-        # Add a marker to the map
-        folium.Marker(location=map_center, popup="You are here", draggable=True).add_to(folium_map)
-
         # Add JavaScript for handling clicks
         folium_map.get_root().html.add_child(folium.Element('''
 	   <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
@@ -74,6 +71,7 @@ class NoteDialog(QDialog):
 	   new QWebChannel(qt.webChannelTransport, function(channel) {
 		   python = channel.objects.python;
 	   });
+	   var popup = L.popup();
         function initializeMap() {
             var map = window[document.querySelector('.leaflet-container').id];
             if (map) {
@@ -81,6 +79,11 @@ class NoteDialog(QDialog):
                     var lat = e.latlng.lat;
                     var lng = e.latlng.lng;
                     console.log('Clicked coordinates:', lat, lng);
+				popup
+				.setLatLng(e.latlng)
+				.setContent("You clicked the map at " + e.latlng.toString())
+				.openOn(map);
+				
                     if (window.python) {
                         python.handleMapClick(lat, lng);
                     } else {
