@@ -17,6 +17,11 @@ class ApplicationController:
         with open("notes.json", "w") as f:
             json.dump(self.notes, f)
 
+    def delete_note(self, index):
+        if 0 <= index < len(self.notes):
+            del self.notes[index]
+            self.save_notes()
+
     def load_notes(self):
         if os.path.exists("notes.json"):
             with open("notes.json", "r") as f:
