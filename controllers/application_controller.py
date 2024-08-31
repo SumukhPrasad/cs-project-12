@@ -1,13 +1,17 @@
 import json
 import os
 import mysql.connector
+from dotenv import load_dotenv
+load_dotenv()
+
 
 class ApplicationController:
 	def __init__(self):
+		self.mysql_password = os.getenv('MYSQL_PASSWORD')
 		self.conn = mysql.connector.connect(
 			host='localhost',
 			user='root',
-			password=''
+			password=self.mysql_password
 		)
 		self.cursor = self.conn.cursor()
 

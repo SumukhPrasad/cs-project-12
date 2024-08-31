@@ -2,3 +2,4 @@ pyqt5
 PyQtWebEngine
 folium
 mysql-connector-python
+python-dotenv
